@@ -7,9 +7,15 @@
     <title>Productivity Tools</title>
 </head>
 <body>
-    <h1 class="dateIs">Date : </h1>
-    <input type="text" name="" id="" class="input" autofocus>
-    <button class="btn"><span>Add</span></button>    <br>
+    <h1 class="dateIs" id="currentDate">Date: </h1>
+    <div class="nav-buttons">
+        <button id="prevDay" class="nav-btn">Prev Day</button>
+        <button id="nextDay" class="nav-btn">Next Day</button>
+        <input type="date" id="datePicker" class="date-picker">
+    </div>
+    <div id="markDisplay" class="marks-section">Marks: 0 / 10</div>
+    <input type="text" class="input" autofocus>
+    <button class="btn"><span>Add</span></button><br>
     <ul class="content"></ul>
     <script src="app.js"></script>
 </body>

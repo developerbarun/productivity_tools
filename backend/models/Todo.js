@@ -4,8 +4,14 @@ const todoSchema = new mongoose.Schema({
     text: String,
     completed: Boolean,
     date: {
-        type: Date,
-        default: Date.now
+        type: String, 
+        required: true
+    },
+    mark: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 10
     }
 });
 

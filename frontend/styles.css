@@ -39,6 +39,46 @@ body {
     outline: none;
 }
 
+.nav-buttons {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.nav-btn {
+    background-color: #a18cd1;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 0 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.nav-btn:hover {
+    background-color: #fbc2eb;
+}
+
+.date-picker {
+    padding: 10px;
+    border: 1px solid #a18cd1;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.marks-section {
+    font-size: 1.5em;
+    color: #fff;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.dateIs {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
 .content {
     margin-top: 10px;    
 }

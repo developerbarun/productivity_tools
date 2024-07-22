@@ -1,18 +1,45 @@
 const btn = document.querySelector(".btn");
 const content = document.querySelector(".content");
 const input = document.querySelector(".input");
-const dateIs = document.querySelector(".dateIs");
+const currentDateElem = document.querySelector("#currentDate");
+const prevDayBtn = document.querySelector("#prevDay");
+const nextDayBtn = document.querySelector("#nextDay");
+const datePicker = document.querySelector("#datePicker");
+const markDisplay = document.querySelector("#markDisplay");
 
-const a = dateIs.innerHTML = "Date : " + new Date().toLocaleDateString();
+const formatDate = (date) => date.toISOString().split('T')[0];
 
-const loadTodos = async () => {
-    const response = await fetch('/todos');
+const saveCurrentDate = (date) => localStorage.setItem('currentDate', formatDate(date));
+
+const loadCurrentDate = () => {
+    const savedDate = localStorage.getItem('currentDate');
+    return savedDate ? new Date(savedDate) : new Date();
+};
+
+let currentDate = loadCurrentDate();
+
+const updateDateDisplay = () => {
+    currentDateElem.textContent = formatDate(currentDate);
+    datePicker.value = formatDate(currentDate);
+    saveCurrentDate(currentDate);
+};
+
+const calculateMarks = (todos) => {
+    if (todos.length === 0) {
+        return 0;
+    }
+    const completedTodos = todos.filter(todo => todo.completed).length;
+    return (completedTodos / todos.length) * 10;
+};
+
+const loadTodos = async (date) => {
+    const response = await fetch(`/todos/${formatDate(date)}`);
     const todos = await response.json();
-
-    todos.forEach(todo => {
-        addElement(todo.text, todo.completed, todo._id);
-    });
-}
+    content.innerHTML = ''; // Clear previous todos
+    todos.forEach(todo => addElement(todo.text, todo.completed, todo._id));
+    const marks = calculateMarks(todos);
+    markDisplay.textContent = `Marks: ${marks.toFixed(1)} / 10`;
+};
 
 const addElement = (text = '', completed = false, id = null) => {
     const node = document.createElement("li");
@@ -24,16 +51,13 @@ const addElement = (text = '', completed = false, id = null) => {
     checkBox.checked = completed;
 
     checkBox.addEventListener('change', async (event) => {
-        if (event.target.checked) {
-            node.classList.add('strikethrough');
-        } else {
-            node.classList.remove('strikethrough');
-        }
+        node.classList.toggle('strikethrough', event.target.checked);
         await fetch(`/todos/${id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ completed: event.target.checked })
         });
+        loadTodos(currentDate);
     });
 
     const textnode = document.createTextNode(text);
@@ -46,6 +70,7 @@ const addElement = (text = '', completed = false, id = null) => {
             method: 'DELETE'
         });
         content.removeChild(node);
+        loadTodos(currentDate);
     });
 
     node.appendChild(checkBox);
@@ -53,17 +78,18 @@ const addElement = (text = '', completed = false, id = null) => {
     node.appendChild(deleteBtn);
     content.appendChild(node);
     input.value = "";
-}
+};
 
 btn.addEventListener('click', async () => {
     if (input.value !== "") {
         const response = await fetch('/todos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: input.value, completed: false })
+            body: JSON.stringify({ text: input.value, completed: false, date: formatDate(currentDate) })
         });
         const newTodo = await response.json();
         addElement(newTodo.text, newTodo.completed, newTodo._id);
+        loadTodos(currentDate);
     }
 });
 
@@ -74,4 +100,23 @@ input.addEventListener("keypress", (event) => {
     }
 });
 
-loadTodos();
+prevDayBtn.addEventListener('click', () => {
+    currentDate.setDate(currentDate.getDate() - 1);
+    updateDateDisplay();
+    loadTodos(currentDate);
+});
+
+nextDayBtn.addEventListener('click', () => {
+    currentDate.setDate(currentDate.getDate() + 1);
+    updateDateDisplay();
+    loadTodos(currentDate);
+});
+
+datePicker.addEventListener('change', (event) => {
+    currentDate = new Date(event.target.value);
+    updateDateDisplay();
+    loadTodos(currentDate);
+});
+
+updateDateDisplay();
+loadTodos(currentDate);
